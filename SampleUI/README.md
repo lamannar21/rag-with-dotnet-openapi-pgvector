@@ -95,10 +95,5 @@ npm run preview
 | `vite.config.ts` | React plugin, port, and proxies |
 | `tsconfig.json` | TypeScript settings |
 
+[← root readme](../readme.md)<br><br>[← SampleUI readme](../SampleAPI/readme.md)
 
-<table width="100%">
-  <tr>
-    <td align="left"><a href="../readme.md">← Back: root readme</a></td>
-    <td align="center"><a href="../SampleAPI/readme.md">← Back: SampleAPI readme</a></td>
-  </tr>
-</table>none

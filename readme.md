@@ -128,10 +128,6 @@ this should list the following tables.
 
 ## License
 
-[MIT](LICENSE).
+MIT [See License](LICENSE)
 
-<table width="100%">
-  <tr>
-    <td align="right"><a href="SampleAPI/readme.md">Next: SampleAPI readme →</a></td>
-  </tr>
-</table>
+[SampleAPI readme →](SampleAPI/readme.md)

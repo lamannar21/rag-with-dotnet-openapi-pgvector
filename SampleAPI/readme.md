@@ -150,10 +150,4 @@ Upload a real text PDF and poll a question to exercise the database, embeddings,
 | No readable PDF text | Use a text PDF or perform OCR first |
 | Question status disappears | Restarting the API loses operations; submit again |
 
-
-<table width="100%">
-  <tr>
-    <td align="left"><a href="../readme.md">← Back: root readme</a></td>
-    <td align="right"><a href="../SampleUI/readme.md">Next: SampleUI readme →</a></td>
-  </tr>
-</table>
+[← root readme](../readme.md) · [SampleUI readme →](../SampleUI/README.md)
