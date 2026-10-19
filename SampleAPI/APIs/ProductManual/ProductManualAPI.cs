@@ -110,6 +110,7 @@ public static class ProductManualAPI
         if (request.DocumentId is Guid documentId && !await retriever.DocumentExistsAsync(documentId, cancellationToken))
             return Results.NotFound(new { message = "The PDF was not found. Upload it again." });
 
+        // queue the question so that this API can immediately return Accepted (202).
         var operation = await queue.EnqueueAsync(request.Question.Trim(), cancellationToken, request.DocumentId);
         string statusUrl = $"/owners-manual/questions/{operation.Id}";
         

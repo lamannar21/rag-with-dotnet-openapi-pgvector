@@ -48,7 +48,6 @@ public sealed partial class ProductManualAgent : IQuestionAnsweringService
                 Include any safety-related information found in the sources.
                 Do not invent details that are not supported by the sources.
                 If the sources do not contain the answer, respond with exactly one answer saying the manual does not provide that information.
-                If the request is too vague to answer, ask one concise clarifying question instead.
                 Set Found to true only when the supplied sources support an answer.
                 Otherwise, set Found to false, including when clarification is needed.
                 Do not format the answers as MarkDown.

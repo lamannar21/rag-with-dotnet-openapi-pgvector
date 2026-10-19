@@ -24,14 +24,6 @@ Install the dependencies:
 npm ci
 ```
 
-| Dependencies | Purpose |
-| --- | --- |
-| `react`, `react-dom` | Components and browser rendering |
-| `typescript`, `@types/react`, `@types/react-dom`, `@types/node` | Type checking and definitions |
-| `vite`, `@vitejs/plugin-react` | Development server and asset build |
-| `vitest` | Test runner |
-| `@testing-library/react`, `@testing-library/jest-dom`, `jsdom` | UI interactions, DOM assertions, and simulated browser |
-
 ## Run locally
 
 Start the API using its [setup guide](../SampleAPI/readme.md), then run:
@@ -84,16 +76,5 @@ npm run preview
 
 `src/App.test.tsx` covers upload interactions, validation, answers, and errors. `src/api.test.ts` covers polling, worker failure, cancellation, and missing operations. Tests mock HTTP and do not require PostgreSQL, OpenAI, or a running API.
 
-## Source layout
-
-| File | Responsibility |
-| --- | --- |
-| `src/main.tsx` | React entry point |
-| `src/App.tsx` | Upload/question UI, state, and timeouts |
-| `src/api.ts` | Requests, polling, and response error handling |
-| `src/styles.css` | Styling |
-| `vite.config.ts` | React plugin, port, and proxies |
-| `tsconfig.json` | TypeScript settings |
-
-[← root readme](../readme.md)<br><br>[← SampleUI readme](../SampleAPI/readme.md)
+[← root readme](../readme.md)<br><br>[← SampleAPI readme](../SampleAPI/readme.md)
 
