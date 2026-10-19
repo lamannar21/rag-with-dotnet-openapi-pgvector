@@ -5,7 +5,7 @@ using System.Threading.Channels;
 
 namespace SampleAPI.APIs.ProductManual;
 
-public enum ManualQuestionStatus
+public enum ProductQuestionStatus
 {
     Queued,
     Processing,
@@ -13,7 +13,7 @@ public enum ManualQuestionStatus
     Failed
 }
 
-public sealed class ManualQuestionQueue
+public sealed class ProductQuestionQueue
 {
     private readonly ConcurrentDictionary<Guid, ProductManualQuestion> _operations = [];
     private readonly Channel<Guid> _queue = Channel.CreateBounded<Guid>(
@@ -39,7 +39,7 @@ public sealed class ManualQuestionQueue
         var operation = new ProductManualQuestion(
             Guid.NewGuid(),
             question,
-            ManualQuestionStatus.Queued,
+            ProductQuestionStatus.Queued,
             false,
             null,
             null,
@@ -87,7 +87,7 @@ public sealed class ManualQuestionQueue
         id,
         operation => operation with
         {
-            Status = ManualQuestionStatus.Processing,
+            Status = ProductQuestionStatus.Processing,
             UpdatedAt = DateTimeOffset.UtcNow
         });
 
@@ -101,7 +101,7 @@ public sealed class ManualQuestionQueue
         id,
         operation => operation with
         {
-            Status = ManualQuestionStatus.Completed,
+            Status = ProductQuestionStatus.Completed,
             Found = answer.Found,
             Answer = answer.Answer,
             UpdatedAt = DateTimeOffset.UtcNow
@@ -116,7 +116,7 @@ public sealed class ManualQuestionQueue
         id,
         operation => operation with
         {
-            Status = ManualQuestionStatus.Failed,
+            Status = ProductQuestionStatus.Failed,
             Error = "The manual agent could not answer the question.",
             UpdatedAt = DateTimeOffset.UtcNow
         });
@@ -144,7 +144,7 @@ public sealed class ManualQuestionQueue
 }
 
 public sealed class ProductManualQuestionWorker(
-    ManualQuestionQueue queue,
+    ProductQuestionQueue queue,
     IQuestionAnsweringService answerer,
     ILogger<ProductManualQuestionWorker> logger) : BackgroundService
 {

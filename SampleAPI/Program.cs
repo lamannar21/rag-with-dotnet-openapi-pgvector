@@ -15,8 +15,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddValidation();
+builder.Services.AddSingleton<QuestionEmbeddingService>();
 builder.Services.AddSingleton<IQuestionAnsweringService, ProductManualAgent>();
-builder.Services.AddSingleton<ManualQuestionQueue>();
+builder.Services.AddSingleton<ProductQuestionQueue>();
 builder.Services.AddHostedService<QuestionWorker>();
 builder.Services.AddSingleton<QuestionAnswerRepository>(services =>
 {
@@ -24,8 +25,6 @@ builder.Services.AddSingleton<QuestionAnswerRepository>(services =>
     var cs = configuration.GetConnectionString("ConnectionStrings__Postgres");
 
     return new QuestionAnswerRepository(
-        apiKey  
-            ?? throw new InvalidOperationException("OPENAI_API_KEY is required."),
         connectionString
             ?? throw new InvalidOperationException(
                 "ConnectionStrings:Postgres is required."));

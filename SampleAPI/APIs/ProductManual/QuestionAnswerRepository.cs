@@ -1,20 +1,14 @@
 using Npgsql;
-using OpenAI.Embeddings;
+using SampleAPI.APIs.ProductManual;
 using Pgvector;
 
 public sealed class QuestionAnswerRepository
 {
-    private readonly EmbeddingClient _embeddingClient;
     private readonly NpgsqlDataSource _dataSource;
 
     public QuestionAnswerRepository(
-        string openAiApiKey,
         string connectionString)
     {
-        _embeddingClient = new EmbeddingClient(
-            model: "text-embedding-3-small",
-            apiKey: openAiApiKey);
-
         var dataSourceBuilder =
             new NpgsqlDataSourceBuilder(connectionString);
 
@@ -23,26 +17,14 @@ public sealed class QuestionAnswerRepository
         _dataSource = dataSourceBuilder.Build();
     }
 
-    private async Task<Vector> CreateEmbeddingAsync(string text, CancellationToken cancellationToken)
-    {
-        var result =
-            await _embeddingClient.GenerateEmbeddingAsync(text, cancellationToken: cancellationToken);
-
-        float[] values = result.Value
-            .ToFloats()
-            .ToArray();
-
-        return new Vector(values);
-    }
-
     public async Task<long> AddAsync(
         string question,
         string answer,
+        Vector embedding,
         CancellationToken cancellationToken = default,
         Guid? documentId = null)
     {
-        Vector embedding =
-            await CreateEmbeddingAsync(question, cancellationToken);
+        ArgumentNullException.ThrowIfNull(embedding);
 
         await using var connection =
             await _dataSource.OpenConnectionAsync(cancellationToken);
@@ -91,7 +73,7 @@ public sealed class QuestionAnswerRepository
         questionCommand.Parameters.AddWithValue(question);
         questionCommand.Parameters.AddWithValue(embedding);
         questionCommand.Parameters.AddWithValue(
-            "text-embedding-3-small");
+            QuestionEmbeddingService.Model);
         questionCommand.Parameters.AddWithValue(NpgsqlTypes.NpgsqlDbType.Uuid, (object?)documentId ?? DBNull.Value);
 
         await questionCommand.ExecuteNonQueryAsync(cancellationToken);
@@ -102,12 +84,11 @@ public sealed class QuestionAnswerRepository
     }
 
     public async Task<QuestionMatch?> FindClosestAsync(
-        string question,
+        Vector embedding,
         CancellationToken cancellationToken = default,
         Guid? documentId = null)
     {
-        Vector embedding =
-            await CreateEmbeddingAsync(question, cancellationToken);
+        ArgumentNullException.ThrowIfNull(embedding);
 
         await using var connection =
             await _dataSource.OpenConnectionAsync(cancellationToken);

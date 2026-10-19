@@ -101,27 +101,30 @@ public static class ProductManualAPI
     }
 
     private static async Task<IResult> SubmitQuestion(
-        AskProductManualQuestion request, ManualQuestionQueue queue,
+        AskProductManualQuestion request, ProductQuestionQueue queue,
         IKnowledgeBaseRetriever retriever, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Question) || request.Question.Length > 300)
             return Results.BadRequest(new { message = "Enter a question between 1 and 300 characters." });
+
         if (request.DocumentId is Guid documentId && !await retriever.DocumentExistsAsync(documentId, cancellationToken))
             return Results.NotFound(new { message = "The PDF was not found. Upload it again." });
+
         var operation = await queue.EnqueueAsync(request.Question.Trim(), cancellationToken, request.DocumentId);
         string statusUrl = $"/owners-manual/questions/{operation.Id}";
+        
         return Results.Accepted(statusUrl, new ProductManualQuestionAPIResponse(
             operation.Id, operation.Status.ToString().ToLowerInvariant(), statusUrl));
     }
 
-    private static IResult GetQuestion(Guid id, ManualQuestionQueue queue, HttpResponse response)
+    private static IResult GetQuestion(Guid id, ProductQuestionQueue queue, HttpResponse response)
     {
         if (!queue.TryGet(id, out var operation)) return Results.NotFound();
-        if (operation.Status is ManualQuestionStatus.Queued or ManualQuestionStatus.Processing)
+        if (operation.Status is ProductQuestionStatus.Queued or ProductQuestionStatus.Processing)
             response.Headers.RetryAfter = "2";
         return Results.Ok(new ProductManualAnswerAPIResponse(
             operation.Id, operation.Question, operation.Status.ToString().ToLowerInvariant(),
-            operation.Status == ManualQuestionStatus.Completed ? operation.Found : null,
+            operation.Status == ProductQuestionStatus.Completed ? operation.Found : null,
             operation.Answer, operation.Error, operation.CreatedAt, operation.UpdatedAt));
     }
 }

@@ -48,7 +48,7 @@ export async function askQuestion(documentId: string, question: string, signal: 
     if (result.status === 'failed') throw new Error(result.error || 'The manual agent could not answer the question.');
     if (result.status !== 'queued' && result.status !== 'processing') throw new Error('Unknown question status returned by the API.');
     onStatus?.(result.status);
-    const retryAfter = Number(response.headers.get('Retry-After') ?? '2');
+    const retryAfter = Number(response.headers.get('Retry-After') ?? '1');
     await delay(Number.isFinite(retryAfter) ? Math.min(10, Math.max(0.1, retryAfter)) * 1000 : 2000, signal);
   }
 }

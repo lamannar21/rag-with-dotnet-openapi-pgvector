@@ -15,23 +15,16 @@ public sealed class KnowledgeBaseRetriever(IConfiguration configuration) : IKnow
     /// Searches document_chunk in Postgres by cosine similarity.
     /// </summary>
     public async Task<IReadOnlyList<KnowledgeChunk>> SearchPostgresVectorAsync(
-        string query,
+        Vector embedding,
         int maxResults,
         CancellationToken cancellationToken,
         Guid? documentId = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(query);
+        ArgumentNullException.ThrowIfNull(embedding);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxResults);
         cancellationToken.ThrowIfCancellationRequested();
 
-        const string model = "text-embedding-3-small";
-        var apiKey = configuration["OPENAI_API_KEY"]
-            ?? throw new InvalidOperationException("OPENAI_API_KEY is required.");
-
-        var embeddingClient = new EmbeddingClient(model, apiKey);
-        var result = await embeddingClient.GenerateEmbeddingAsync(
-            query, cancellationToken: cancellationToken);
-        var embedding = new Vector(result.Value.ToFloats().ToArray());
+        const string model = QuestionEmbeddingService.Model;
 
         await using var dataSource = CreateDataSource();
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
@@ -75,7 +68,7 @@ public sealed class KnowledgeBaseRetriever(IConfiguration configuration) : IKnow
     public async Task IndexDocumentAsync(string filename, IReadOnlyList<ManualDocumentChunk> chunks,
         Guid? documentId, CancellationToken cancellationToken)
     {
-        const string model = "text-embedding-3-small";
+        const string model = QuestionEmbeddingService.Model;
         var embeddingClient = new EmbeddingClient(model, configuration["OPENAI_API_KEY"]
             ?? throw new InvalidOperationException("OPENAI_API_KEY is required."));
         var embeddings = new List<Vector>(chunks.Count);

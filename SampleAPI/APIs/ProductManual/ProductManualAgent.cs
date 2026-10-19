@@ -13,13 +13,15 @@ public sealed partial class ProductManualAgent : IQuestionAnsweringService
 
     private readonly IKnowledgeBaseRetriever _retriever;
     private readonly AIAgent _agent;
+    private readonly QuestionEmbeddingService _embeddingService;
     private readonly QuestionAnswerRepository _questionAnswerRepository;
 
     public ProductManualAgent(
         ResponsesClient responsesClient,
         IKnowledgeBaseRetriever retriever,
         QuestionAnswerRepository questionAnswerRepository,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        QuestionEmbeddingService embeddingService)
     {
         ArgumentNullException.ThrowIfNull(responsesClient);
         ArgumentNullException.ThrowIfNull(retriever);
@@ -29,6 +31,8 @@ public sealed partial class ProductManualAgent : IQuestionAnsweringService
             ?? throw new InvalidOperationException(
                 "OpenAI:ChatModel is required.");
 
+        ArgumentNullException.ThrowIfNull(embeddingService);
+        _embeddingService = embeddingService;
         _retriever = retriever;
         _questionAnswerRepository = questionAnswerRepository;
         _agent = responsesClient.AsAIAgent(
@@ -64,8 +68,11 @@ public sealed partial class ProductManualAgent : IQuestionAnsweringService
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(question);
 
+        var embedding = await _embeddingService.CreateAsync(question, cancellationToken)
+            .ConfigureAwait(false);
+
         QuestionMatch? cachedAnswer = await _questionAnswerRepository
-            .FindClosestAsync(question, cancellationToken, documentId)
+            .FindClosestAsync(embedding, cancellationToken, documentId)
             .ConfigureAwait(false);
 
         if (cachedAnswer is not null && cachedAnswer.Similarity >= SimilarQuestionThreshold)
@@ -74,7 +81,7 @@ public sealed partial class ProductManualAgent : IQuestionAnsweringService
         }
 
         IReadOnlyList<KnowledgeChunk> chunks = await _retriever
-            .SearchPostgresVectorAsync(question, 8, cancellationToken, documentId)
+            .SearchPostgresVectorAsync(embedding, 8, cancellationToken, documentId)
             .ConfigureAwait(false);
 
         string groundedPrompt = BuildGroundedPrompt(question, chunks);
@@ -92,7 +99,7 @@ public sealed partial class ProductManualAgent : IQuestionAnsweringService
         if (found)
         {
             await _questionAnswerRepository
-                .AddAsync(question, answer, cancellationToken, documentId)
+                .AddAsync(question, answer, embedding, cancellationToken, documentId)
                 .ConfigureAwait(false);
         }
         return new ProductManualAnswer(

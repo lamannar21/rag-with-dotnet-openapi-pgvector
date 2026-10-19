@@ -2,7 +2,7 @@
 using SampleAPI.APIs.ProductManual;
 
 public sealed class QuestionWorker(
-    ManualQuestionQueue queue,
+    ProductQuestionQueue queue,
     IQuestionAnsweringService answerer,
     ILogger<QuestionWorker> logger) : BackgroundService
 {

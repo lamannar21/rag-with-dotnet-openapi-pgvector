@@ -36,7 +36,7 @@ public sealed record ProductManualAnswerAPIResponse(
 public sealed record ProductManualQuestion(
     Guid Id,
     string Question,
-    ManualQuestionStatus Status,
+    ProductQuestionStatus Status,
     bool Found,
     string? Answer,
     string? Error,
