@@ -1,0 +1,35 @@
+@SampleAPI_HostAddress = http://localhost:5290
+
+### Upload and index the sample PDF
+
+POST {{SampleAPI_HostAddress}}/owners-manual/questions/embeddings/upload
+Content-Type: multipart/form-data; boundary=SampleDocumentBoundary
+
+--SampleDocumentBoundary
+Content-Disposition: form-data; name="file"; filename="manual.pdf"
+Content-Type: application/pdf
+
+< ./SampleDocuments/product-manual.pdf
+--SampleDocumentBoundary--
+
+### Ask a question (replace documentId with the id returned by the upload)
+# example questions for the provided product manual
+# How do I make a cup of coffee using a Pod?
+# How do I make a cup of coffee using the brew basket?
+# What's the product warranty?
+# How do I clean the nozzle?
+# What brew sizes can I select when using Pods?
+
+POST {{SampleAPI_HostAddress}}/owners-manual/questions/
+Content-Type: application/json
+
+{
+  "question": "Which parts are replaceable?",
+  "documentId": "b9aff117-9db1-4e35-9ee2-a1631b71f8a8"
+}
+
+### Get the answer (Replace questionId with the id return in the question response) 
+
+GET {{SampleAPI_HostAddress}}/owners-manual/questions/d7e8afa2-9f22-41eb-8a51-42c09ebaccff
+Accept: application/json
+###

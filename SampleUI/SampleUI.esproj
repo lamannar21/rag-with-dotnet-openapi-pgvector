@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.3653345">
+  <PropertyGroup>
+    <StartupCommand>npm run dev</StartupCommand>
+    <BuildCommand>npm run build</BuildCommand>
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
+  </PropertyGroup>
+</Project>
